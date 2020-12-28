@@ -109,7 +109,7 @@ func main() {
 	var payoffs []float64
 	var contributions []float64
 	var fines []float64
-	fileNames := [3] string{"reproduction", "generation", "contribution", "fine"}
+	fileNames := [4] string{"reproduction", "generation", "contribution", "fine"}
 	payoff_generations := make([][]float64, len(risks))
 	for i :=0; i < len(risks); i++{
 		payoff_generations[i] = make([]float64, 201)
