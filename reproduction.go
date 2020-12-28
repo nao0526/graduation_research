@@ -166,34 +166,34 @@ func main() {
 							players[p].updateEndowment(players[p].endowment - contribution) // 寄付した額だけ資金を減らす
 						}
 						commonPool += contributionPerRound
-						if r == 4 {
-							if commonPool < (T / 2.0) {
-								for _, p := range group {
-									var restEndowment float64 = players[p].endowment - (E / 2.0)
-									if restEndowment > 0 {
-										var fine float64 = (risk / 2.0) * restEndowment
-										players[p].updateEndowment(players[p].endowment - fine)
-										commonPool += fine
-										if g == generation - 1 {
-											sumFine += fine
-										}
-									}
-								}
-							}
-						}
-						// if commonPool < (T / float64(R))  {
-						// 	for _, p := range group {
-						// 		var restEndowment float64 = players[p].endowment - ((E / float64(R)) * float64(R - (r + 1)))
-						// 		if restEndowment > 0 {
-						// 			var fine float64 = (risk / float64(R)) * restEndowment
-						// 			players[p].updateEndowment(players[p].endowment - fine)
-						// 			commonPool += fine
-						// 			if g == generation - 1 {
-						// 				sumFine += fine
+						// if r == 4 {
+						// 	if commonPool < (T / 2.0) {
+						// 		for _, p := range group {
+						// 			var restEndowment float64 = players[p].endowment - (E / 2.0)
+						// 			if restEndowment > 0 {
+						// 				var fine float64 = (risk / 2.0) * restEndowment
+						// 				players[p].updateEndowment(players[p].endowment - fine)
+						// 				commonPool += fine
+						// 				if g == generation - 1 {
+						// 					sumFine += fine
+						// 				}
 						// 			}
 						// 		}
 						// 	}
 						// }
+						if commonPool < (T / float64(R))  {
+							for _, p := range group {
+								var restEndowment float64 = players[p].endowment - ((E / float64(R)) * float64(R - (r + 1)))
+								if restEndowment > 0 {
+									var fine float64 = (risk / float64(R)) * restEndowment
+									players[p].updateEndowment(players[p].endowment - fine)
+									commonPool += fine
+									if g == generation - 1 {
+										sumFine += fine
+									}
+								}
+							}
+						}
 					}
 					if g == generation - 1 {
 						sumContribution += commonPool
