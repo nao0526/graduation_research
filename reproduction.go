@@ -108,7 +108,8 @@ func main() {
 	// risks := [1] float64{1.0}
 	var payoffs []float64
 	var contributions []float64
-	fileNames := [3] string{"reproduction", "generation", "contribution"}
+	var fines []float64
+	fileNames := [3] string{"reproduction", "generation", "contribution", "fine"}
 	payoff_generations := make([][]float64, len(risks))
 	for i :=0; i < len(risks); i++{
 		payoff_generations[i] = make([]float64, 201)
@@ -121,6 +122,7 @@ func main() {
 	for q, risk := range risks {
 		var sumPayoff float64 = 0.0
 		var sumContribution float64 = 0.0
+		var sumFine float64 = 0.0
 		var payoffs_trials [100][201]float64
 		for t := 0; t < trials; t++ {
 			var players Players // playerを格納しておく配列
@@ -164,21 +166,39 @@ func main() {
 							players[p].updateEndowment(players[p].endowment - contribution) // 寄付した額だけ資金を減らす
 						}
 						commonPool += contributionPerRound
-						// if r == 4 {
-						//	if commonPool < (T / 2.0) {
-						// 		for _, p := range group {
-						// 			players[p].updateEndowment((1.0 - (risk / 2.0)) * players[p].endowment)
-						// 		}
-						// 	}
-						//}
-						//if commonPool < (T / float64(R))  {
-						// 	for _, p := range group {
-						// 		players[p].updateEndowment((1.0 - (risk / float64(R))) * players[p].endowment)
-						// 	}
-						//}
+						if r == 4 {
+							if commonPool < (T / 2.0) {
+								for _, p := range group {
+									var restEndowment float64 = players[p].endowment - (E / 2.0)
+									if restEndowment > 0 {
+										var fine float64 = (risk / 2.0) * restEndowment
+										players[p].updateEndowment(players[p].endowment - fine)
+										commonPool += fine
+										if g == generation - 1 {
+											sumFine += fine
+										}
+									}
+								}
+							}
+						}
+						if commonPool < (T / float64(R))  {
+							for _, p := range group {
+								var restEndowment float64 = players[p].endowment - ((E / float64(R)) * float64(R - (r + 1)))
+								if restEndowment > 0 {
+									var fine float64 = (risk / float64(R)) * restEndowment
+									players[p].updateEndowment(players[p].endowment - fine)
+									commonPool += fine
+									if g == generation - 1 {
+										sumFine += fine
+									}
+								}
+							}
+						}
 					}
-					sumContribution += commonPool
-					
+					if g == generation - 1 {
+						sumContribution += commonPool
+					}
+
 					// 目標額があつまらなかった場合、確率に従い資金損失
 					if commonPool < T {
 						if rand.Float64() < risk {
@@ -200,7 +220,9 @@ func main() {
 				for i := 0; i < N; i++ {
 					players[i].updatePayoff(players[i].payoff / float64(players[i].count))
 					payoff_generation += players[i].payoff
-					sumPayoff += players[i].payoff
+					if g == generation - 1 {
+						sumPayoff += players[i].payoff
+					}
 				}
 				if g < 201 {
 					payoff_generations[q][g] += payoff_generation / float64(N * trials)
@@ -240,8 +262,9 @@ func main() {
 				}
 			}
 		}
-		payoffs = append(payoffs, sumPayoff / float64(N * generation * trials))
-		contributions = append(contributions, sumContribution / float64(M * G * generation * trials))
+		payoffs = append(payoffs, sumPayoff / float64(N * trials))
+		contributions = append(contributions, sumContribution / float64(M * G * trials))
+		fines = append(fines, sumFine / float64(M * G * trials))
 
 		for g := 0; g < 201; g++ {
 			var payoff_generation float64 = 0.0
@@ -259,10 +282,6 @@ func main() {
 	fmt.Printf("%f秒\n", (end.Sub(start)).Seconds())
 
 	// ファイル出力
-
-	// // records = append(records, record)
-	// fmt.Println(records)
-	// for 
 	for _, fileName := range fileNames {
 		var records []string
 		// // var record []string
@@ -284,6 +303,12 @@ func main() {
 			}
 		}
 
+		if fileName == "fine" {
+			for i := 0; i < len(risks); i++ {
+				records = append(records, strconv.FormatFloat(fines[i], 'f', -1, 64))
+			}
+		}
+
 		f, err := os.Create("./" + fileName + ".csv")
 		if err != nil {
 			 log.Fatal(err)
@@ -302,33 +327,4 @@ func main() {
 		}
 
 	}
-// 	for q, risk := range risks {
-
-
-// 	// ファイル出力
-// 	// var recordss []
-// 	var record []string
-// 		for g:= 0; g < 201; g++ {
-// 			record = append(record, strconv.FormatFloat(payoff_generations[0][g], 'f', -1, 64))
-// 		}
-// 		// fmt.Println(record)
-
-// 	// // // records = append(records, record)
-// 	// fmt.Println(recordss)
-// 	ff, errr := os.Create("./generation.csv")
-// 	if errr != nil {
-// 			log.Fatal(errr)
-// 	}
-
-// 	ww := csv.NewWriter(ff)
-
-// 		if errr := ww.Write(record); errr != nil {
-// 				log.Fatal(errr)
-// 		}
-
-// 	ww.Flush()
-
-// 	if errr := ww.Error(); errr != nil {
-// 		log.Fatal(errr)
-// 	}
 }
