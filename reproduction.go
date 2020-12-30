@@ -102,7 +102,7 @@ func pickup(min int, max int, num int) []int {
 }
 
 func main() {
-	var G, N, M, R, generation, trials int = 10000, 1000, 6, 10, 500, 20
+	var G, N, M, R, generation, trials int = 10000, 1000, 6, 10, 500, 100
 	var E float64 = 1.0
 	risks := [11] float64{0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0}
 	// risks := [1] float64{1.0}
