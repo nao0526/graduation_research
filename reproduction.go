@@ -196,7 +196,7 @@ func main() {
 						// }
 					}
 					if g == generation - 1 {
-						sumContribution += commonPool
+						sumContribution += commonPool - sumFine
 					}
 
 					// 目標額があつまらなかった場合、確率に従い資金損失
