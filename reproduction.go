@@ -109,7 +109,8 @@ func main() {
 	var payoffs []float64
 	var contributions []float64
 	var fines []float64
-	fileNames := [4] string{"reproduction", "generation", "contribution", "fine"}
+	var targets []float64
+	fileNames := [5] string{"reproduction", "generation", "contribution", "fine", "target"}
 	payoff_generations := make([][]float64, len(risks))
 	for i :=0; i < len(risks); i++{
 		payoff_generations[i] = make([]float64, 201)
@@ -123,7 +124,8 @@ func main() {
 		var sumPayoff float64 = 0.0
 		var sumContribution float64 = 0.0
 		var sumFine float64 = 0.0
-		var payoffs_trials [100][201]float64
+		var sumTarget float64 = 0.0
+		// var payoffs_trials [100][201]float64
 		for t := 0; t < trials; t++ {
 			var players Players // playerを格納しておく配列
 			// playerの生成
@@ -144,6 +146,7 @@ func main() {
 		
 					// ゲーム開始
 					var commonPool float64 = 0.0 // 集まったお金をカウントする変数
+					var commonPoolNotFine float64 = 0.0 // 集まったお金をカウントする変数
 					for r := 0; r < R; r++ {
 						var contributionPerRound float64 = 0.0 // 各ラウンドでの寄付額の合計
 						for _, p := range group {
@@ -166,10 +169,12 @@ func main() {
 							players[p].updateEndowment(players[p].endowment - contribution) // 寄付した額だけ資金を減らす
 						}
 						commonPool += contributionPerRound
+						commonPoolNotFine += contributionPerRound
 						if r == 4 {
 							if commonPool < (T / 2.0) {
 								for _, p := range group {
-									var restEndowment float64 = players[p].endowment - (E / 2.0)
+									// var restEndowment float64 = players[p].endowment - (E / 2.0)
+									var restEndowment float64 = players[p].endowment
 									if restEndowment > 0 {
 										var fine float64 = (risk / 2.0) * restEndowment
 										players[p].updateEndowment(players[p].endowment - fine)
@@ -196,7 +201,8 @@ func main() {
 						// }
 					}
 					if g == generation - 1 {
-						sumContribution += commonPool - sumFine
+						sumContribution += commonPoolNotFine
+						sumTarget += commonPool
 					}
 
 					// 目標額があつまらなかった場合、確率に従い資金損失
@@ -265,14 +271,15 @@ func main() {
 		payoffs = append(payoffs, sumPayoff / float64(N * trials))
 		contributions = append(contributions, sumContribution / float64(M * G * trials))
 		fines = append(fines, sumFine / float64(M * G * trials))
+		targets = append(targets, sumTarget/ float64(G * trials))
 
-		for g := 0; g < 201; g++ {
-			var payoff_generation float64 = 0.0
-			for t := 0; t < trials; t++ {
-				payoff_generation += payoffs_trials[t][g]
-			}
-			payoff_generations[q][g] = payoff_generation / float64(N * trials)
-		}
+		// for g := 0; g < 201; g++ {
+		// 	var payoff_generation float64 = 0.0
+		// 	for t := 0; t < trials; t++ {
+		// 		payoff_generation += payoffs_trials[t][g]
+		// 	}
+		// 	payoff_generations[q][g] = payoff_generation / float64(N * trials)
+		// }
 		
 	}	
 	fmt.Println(contributions)
@@ -306,6 +313,12 @@ func main() {
 		if fileName == "fine" {
 			for i := 0; i < len(risks); i++ {
 				records = append(records, strconv.FormatFloat(fines[i], 'f', -1, 64))
+			}
+		}
+
+		if fileName == "target" {
+			for i := 0; i < len(risks); i++ {
+				records = append(records, strconv.FormatFloat(targets[i], 'f', -1, 64))
 			}
 		}
 
