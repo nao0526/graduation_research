@@ -102,7 +102,7 @@ func pickup(min int, max int, num int) []int {
 }
 
 func main() {
-	var G, N, M, R, generation, trials int = 10000, 1000, 6, 10, 1000, 100
+	var G, N, M, R, generation, trials int = 10000, 1000, 6, 10, 1000, 1000
 	var E float64 = 1.0
 	risks := [11] float64{0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0}
 	// risks := [1] float64{1.0}
@@ -170,36 +170,36 @@ func main() {
 						}
 						commonPool += contributionPerRound
 						commonPoolNotFine += contributionPerRound
-						// if r == 4 {
-						// 	if commonPool < (T / 2.0) {
-						// 		for _, p := range group {
-						// 			// var restEndowment float64 = players[p].endowment - (E / 2.0)
-						// 			var restEndowment float64 = players[p].endowment
-						// 			if restEndowment > 0 {
-						// 				var fine float64 = (risk / 2.0) * restEndowment
-						// 				players[p].updateEndowment(players[p].endowment - fine)
-						// 				// commonPool += fine
-						// 				if g == generation - 1 {
-						// 					sumFine += fine
-						// 				}
-						// 			}
-						// 		}
-						// 	}
-						// }
-						if commonPool < (T / float64(R))  {
-							for _, p := range group {
-								// var restEndowment float64 = players[p].endowment - ((E / float64(R)) * float64(R - (r + 1)))
-								var restEndowment float64 = players[p].endowment
-								if restEndowment > 0 {
-									var fine float64 = (risk / float64(R)) * restEndowment
-									players[p].updateEndowment(players[p].endowment - fine)
-									// commonPool += fine
-									if g == generation - 1 {
-										sumFine += fine
+						if r == 4 {
+							if commonPool < (T / 2.0) {
+								for _, p := range group {
+									var restEndowment float64 = players[p].endowment - (E / 2.0)
+									// var restEndowment float64 = players[p].endowment
+									if restEndowment > 0 {
+										var fine float64 = (risk / 2.0) * restEndowment
+										players[p].updateEndowment(players[p].endowment - fine)
+										// commonPool += fine
+										if g == generation - 1 {
+											sumFine += fine
+										}
 									}
 								}
 							}
 						}
+						// if commonPool < (T / float64(R))  {
+						// 	for _, p := range group {
+						// 		// var restEndowment float64 = players[p].endowment - ((E / float64(R)) * float64(R - (r + 1)))
+						// 		var restEndowment float64 = players[p].endowment
+						// 		if restEndowment > 0 {
+						// 			var fine float64 = (risk / float64(R)) * restEndowment
+						// 			players[p].updateEndowment(players[p].endowment - fine)
+						// 			// commonPool += fine
+						// 			if g == generation - 1 {
+						// 				sumFine += fine
+						// 			}
+						// 		}
+						// 	}
+						// }
 					}
 					if g == generation - 1 {
 						sumContribution += commonPoolNotFine
